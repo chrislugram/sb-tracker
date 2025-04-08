@@ -1,0 +1,22 @@
+[project]
+name = "sb-tracker"
+version = "0.1.0"
+description = "Small app for tracking time, costs and profits for a small and personal business"
+authors = [
+    {name = "Christian Lugo"}
+]
+license = {text = "Apache License 2.0"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+]
+
+[tool.poetry]
+package-mode = false
+
+[virtualenvs]
+in-project = true
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
