@@ -94,6 +94,18 @@ class Storage:
             log.info(f"Saving {file_col}")
             self._cache_data[col.value].to_parquet(file_col)
 
+    def get(self, col: StorageCollection) -> pd.DataFrame:
+        """
+        Get the data from the storage system
+
+        Args:
+            col (StorageCollection): Storage collection
+
+        Returns:
+            pd.DataFrame: Generic dataframe
+        """
+        return self._cache_data[col.value]
+
     def _get_dataclass_type(self, col: StorageCollection) -> type:
         """
         Get the dataclass type from the storage collection
