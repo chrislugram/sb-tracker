@@ -2,8 +2,8 @@
 This file contains the main function for the app
 """
 
-from logger import get_logger
 from config.app_config import AppConfig
+from logger import get_logger
 from storage.storage import Storage, StorageCollection
 
 # Create and configure logger

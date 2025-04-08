@@ -1,17 +1,19 @@
 """
-This file contains a storage module that saves data into local storage with .parquet
+This file contains a storage module that saves data into local
+storage with .parquet
 """
-import logging
+
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 
 import pandas as pd
 
-from logger import get_logger
 from config.app_config import AppConfig
+from logger import get_logger
 
 log = get_logger("storage")
+
 
 class StorageCollection(Enum):
     timetrack = "TIMETRACK"
@@ -21,10 +23,12 @@ class StorageCollection(Enum):
 
 
 @dataclass
-class Storage():
+class Storage:
     """
-    This class is a storage module that saves data into local storage with .parquet
+    This class is a storage module that saves data into local
+    storage with .parquet
     """
+
     config: AppConfig = None
     _cache_data: dict = field(default_factory=dict)
 
@@ -44,7 +48,7 @@ class Storage():
 
         Args:
             col (StorageCollection): Storage collection
-        
+
         Returns:
             pd.DataFrame: Generic dataframe
         """
@@ -56,7 +60,6 @@ class Storage():
         else:
             log.info("File does not exist")
 
-    
     def save(self, data: pd.DataFrame):
         """
         Save the data to the storage system

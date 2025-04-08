@@ -2,16 +2,22 @@
 This class is the configuration for the app using yaml
 """
 
-from logger import get_logger
 from configparser import ConfigParser
 
+from logger import get_logger
+
 log = get_logger("config")
+
 
 class AppConfig:
     """
     This class is the configuration for the app
     """
-    def __init__(self, config_file: str, ):
+
+    def __init__(
+        self,
+        config_file: str,
+    ):
         self.config = ConfigParser()
         self.config.read(config_file)
 
@@ -27,5 +33,3 @@ class AppConfig:
             str: The value of the config file
         """
         return self.config.get(section, key)
-
-
