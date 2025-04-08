@@ -4,8 +4,9 @@ This file contains a logger
 
 import logging
 
+
 def get_logger(name: str = "sb-tracker") -> logging.Logger:
-    
+
     logger = logging.getLogger(name)
     if not logger.handlers:
         logger.setLevel(logging.INFO)
