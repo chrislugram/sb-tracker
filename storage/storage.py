@@ -22,7 +22,7 @@ class StorageCollection(Enum):
     timetrack = "TIMETRACK"
     projects = "PROJECTS"
     expenses = "EXPENSES"
-    infoices = "INVOICES"
+    invoices = "INVOICES"
 
 
 @dataclass
@@ -110,5 +110,5 @@ class Storage:
             return Timetrack
         elif col == StorageCollection.expenses:
             return Expense
-        elif col == StorageCollection.infoices:
+        elif col == StorageCollection.invoices:
             return Invoice
