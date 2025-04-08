@@ -41,7 +41,6 @@ class Storage:
             raise ValueError("config is required")
 
         self._base_path = Path(self.config.get("APPCONFIG", "base_path_storage"))
-        log.info(self._base_path)
         if not self._base_path.exists():
             self._base_path.mkdir()
 
@@ -72,12 +71,13 @@ class Storage:
         Returns:
             pd.DataFrame: Generic dataframe
         """
-        log.info(col.name)
-        file_col = Path(self.config.get(col.value, "path"))
+        # Get file name for collection
+        file_col = self._base_path / self.config.get(col.value, "path")
 
+        # Check if file exists
         if file_col.exists():
             log.info(f"Loading {file_col}")
-            # TODO
+            self._cache_data[col.value] = pd.read_parquet(file_col)
         else:
             log.info(f"File does not exist, creating {col.value}")
             dataclass_type = self._get_dataclass_type(col)
