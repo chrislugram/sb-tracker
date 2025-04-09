@@ -17,17 +17,17 @@ from storage.storage import Storage, StorageCollection
 log = get_logger("project-status")
 
 
-def tab_project_status(storage: Storage, app_config: AppConfig):
+def tab_project_status(
+    storage: Storage, app_config: AppConfig, selected_project: Project
+):
     """
     Create tab for project status
 
     Args:
-        storage (Storage): Storage
+        storage (Storage): app storage
+        app_config (AppConfig): app config
+        selected_project (Project): Project selected for the tab
     """
-    st.subheader("Project status")
-
-    selected_project = select_project(storage)
-
     st.markdown("---")
 
     if selected_project is not None:
@@ -38,36 +38,6 @@ def tab_project_status(storage: Storage, app_config: AppConfig):
 
         add_expense(storage, selected_project, app_config)
         add_invoice(storage, selected_project, app_config)
-
-
-def select_project(storage: Storage) -> Project:
-    """
-    Select project
-
-    Args:
-        storage (Storage): Storage
-
-    Returns:
-        Project: Project
-    """
-    st.subheader("Select project")
-
-    project_df = storage.get(StorageCollection.projects)
-
-    if project_df.empty:
-        st.info("No projects found")
-        return
-
-    # Create selector of project
-    project_selector = st.selectbox("Select project", project_df["name"].values)
-
-    # Get project
-    row = project_df[project_df["name"] == project_selector].iloc[0]
-    if row is not None:
-        log.info(f"Selected project {row}")
-        return Project(**row.to_dict())
-    else:
-        return None
 
 
 def show_expenses(storage: Storage, project: Project):
@@ -117,7 +87,7 @@ def show_invoices(storage: Storage, project: Project):
 
         # Show invoices
         if invoices_df.empty:
-            st.info("No expenses found")
+            st.info("No invoices found")
         else:
             columns_name = Invoice.get_column_names()
             columns_name.remove("project")
