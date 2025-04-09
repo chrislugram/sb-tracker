@@ -3,6 +3,7 @@ This file contains all the components for showing projects
 """
 
 import uuid
+from datetime import datetime
 
 import streamlit as st
 
@@ -65,7 +66,10 @@ def project_form(storage: Storage):
                 st.warning("The project name cannot be empty.")
             else:
                 new_project = Project(
-                    id=str(uuid.uuid4()), name=name, description=description
+                    id=str(uuid.uuid4()),
+                    name=name,
+                    description=description,
+                    created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 )
 
                 # Save project
