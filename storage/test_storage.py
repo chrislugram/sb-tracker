@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 
 from config.app_config import AppConfig
+from definition.project import Project
 from storage.storage import Storage, StorageCollection
 
 
@@ -74,3 +75,20 @@ class TestStorage(unittest.TestCase):
         self.storage.save = MagicMock()
         self.storage.save_all()
         self.storage.save.call_count = 4
+
+    def test_add_to_collection(self):
+        # Given an empty collection
+        self.storage._cache_data = {}
+        self.storage.load(StorageCollection.projects)
+
+        # When adding an item to the collection
+        project = Project(id="1", name="Project 1", description="Description 1")
+        self.storage.add_to_collection(StorageCollection.projects, project)
+
+        # Then
+        self.assertIn("PROJECTS", self.storage._cache_data.keys())
+        self.assertEqual(len(self.storage._cache_data["PROJECTS"]), 1)
+        self.assertIsInstance(self.storage._cache_data["PROJECTS"], pd.DataFrame)
+        self.assertEqual(
+            self.storage._cache_data["PROJECTS"].iloc[0]["name"], "Project 1"
+        )
