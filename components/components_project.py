@@ -3,13 +3,11 @@ This file contains all the components for showing projects
 """
 
 import uuid
-from datetime import datetime
 
-import pandas as pd
 import streamlit as st
 
 from definition.project import Project
-from storage.storage import Storage
+from storage.storage import Storage, StorageCollection
 
 
 def tab_projects(storage: Storage):
@@ -22,8 +20,27 @@ def tab_projects(storage: Storage):
     st.subheader("Add new project")
     project_form(storage)
 
-    # st.subheader("List of projects")
-    # project_list(storage)
+    st.subheader("List of projects")
+    project_list(storage)
+
+
+def project_list(storage: Storage):
+    """
+    Show the project list
+
+    Args:
+        storage (Storage): Storage
+    """
+    st.subheader("Project list")
+
+    df = storage.get(StorageCollection.projects)
+
+    if not df.empty:
+        edited_df = st.data_editor(df, num_rows="dynamic")
+        if edited_df is not None:
+            storage.set(StorageCollection.projects, edited_df)
+    else:
+        st.info("No projects found")
 
 
 def project_form(storage: Storage):
@@ -40,7 +57,7 @@ def project_form(storage: Storage):
         # Input fields
         name = st.text_input("Project name", max_chars=100)
         description = st.text_area("Description", max_chars=1000)
-        submitted = st.form_submit_button("Save project")
+        submitted = st.form_submit_button("Create project")
 
         # Save project
         if submitted:
@@ -48,32 +65,10 @@ def project_form(storage: Storage):
                 st.warning("The project name cannot be empty.")
             else:
                 new_project = Project(
-                    id=str(uuid.uuid4()),
-                    name=name,
-                    description=description,
-                    created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    id=str(uuid.uuid4()), name=name, description=description
                 )
 
                 # Save project
+                storage.add_to_collection(StorageCollection.projects, new_project)
 
-                if "df_projects" not in st.session_state:
-                    st.session_state.df_projects = pd.DataFrame(
-                        columns=["id", "name", "created_at", "description"]
-                    )
-
-                st.session_state.df_projects = pd.concat(
-                    [st.session_state.df_projects, pd.DataFrame([new_project])],
-                    ignore_index=True,
-                )
-
-                st.success(f"Proyecto '{name}' añadido correctamente.")
-
-    st.subheader("Lista de proyectos")
-
-    if "df_projects" in st.session_state and not st.session_state.df_projects.empty:
-        st.dataframe(
-            st.session_state.df_projects.sort_values(by="created_at", ascending=False),
-            use_container_width=True,
-        )
-    else:
-        st.info("No hay proyectos creados aún.")
+                st.success(f"Project '{name}' created.")

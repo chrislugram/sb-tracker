@@ -2,13 +2,12 @@
 This file contains the main function for the app
 """
 
-# import pandas as pd
-# import streamlit as st
+import streamlit as st
 
+from components.components_project import tab_projects
 from config.app_config import AppConfig
 from logger import get_logger
-
-# from storage.storage import Storage
+from storage.storage import Storage
 
 # Create and configure logger
 log = get_logger("main")
@@ -16,14 +15,20 @@ log = get_logger("main")
 # Load app configuration
 app_config = AppConfig("config.ini")
 
-# # Load storage
-# storage = Storage(config=app_config)
-# storage.load_all()
-
-# # Save storage
-# storage.save_all()
+# Load storage
+storage = Storage(config=app_config)
+storage.load_all()
 
 ################################################
+
+st.title("SB Tracker")
+
+tabs = st.tabs(["Projects"])
+
+# Project
+with tabs[0]:
+    tab_projects(storage)
+
 # df_projects = pd.DataFrame(columns=["id", "name", "created_at", "description"])
 # df_timetracks = pd.DataFrame(
 #     columns=["id", "project_id", "created_at", "duration", "name", "description"]
