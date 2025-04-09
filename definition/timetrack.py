@@ -13,6 +13,7 @@ class Timetrack(Definition):
     duration: int
     name: str
     description: str
+    type: str
 
     def __str__(self):
         return f"{self.project} - {self.created_at} - {self.duration} - {self.name} - {self.description}"
