@@ -2,13 +2,14 @@
 This file contains a storage module that saves data into local storage with .parquet
 """
 
-from dataclasses import dataclass, field, fields
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from pathlib import Path
 
 import pandas as pd
 
 from config.app_config import AppConfig
+from definition.definition import Definition
 from definition.expenses import Expense
 from definition.invoice import Invoice
 from definition.project import Project
@@ -52,6 +53,7 @@ class Storage:
             dict: Dictionary of dataframes
         """
         for col in StorageCollection:
+            log.info(f"Loading {col.value}")
             self.load(col)
 
     def save_all(self):
@@ -71,18 +73,20 @@ class Storage:
         Returns:
             pd.DataFrame: Generic dataframe
         """
-        # Get file name for collection
-        file_col = self._base_path / self.config.get(col.value, "path")
+        if col.value not in self._cache_data.keys():
+            # Get file name for collection
+            file_col = self._base_path / self.config.get(col.value, "path")
 
-        # Check if file exists
-        if file_col.exists():
-            log.info(f"Loading {file_col}")
-            self._cache_data[col.value] = pd.read_parquet(file_col)
-        else:
-            log.info(f"File does not exist, creating {col.value}")
-            dataclass_type = self._get_dataclass_type(col)
-            column_names = [f.name for f in fields(dataclass_type)]
-            self._cache_data[col.value] = pd.DataFrame(columns=column_names)
+            # Check if file exists
+            if file_col.exists():
+                log.info(f"Loading {file_col}")
+                self._cache_data[col.value] = pd.read_parquet(file_col)
+            else:
+                log.info(f"File does not exist, creating {col.value}")
+                dataclass_type = self._get_dataclass_type(col)
+                self._cache_data[col.value] = pd.DataFrame(
+                    columns=dataclass_type.get_column_names()
+                )
 
     def save(self, col: StorageCollection):
         """
@@ -93,6 +97,17 @@ class Storage:
             file_col = self._base_path / self.config.get(col.value, "path")
             log.info(f"Saving {file_col}")
             self._cache_data[col.value].to_parquet(file_col)
+
+    def set(self, col: StorageCollection, data: pd.DataFrame):
+        """
+        Set the data to the storage system
+
+        Args:
+            col (StorageCollection): Storage collection
+            data (pd.DataFrame): Data to set
+        """
+        self._cache_data[col.value] = data
+        self.save(col)
 
     def get(self, col: StorageCollection) -> pd.DataFrame:
         """
@@ -105,6 +120,21 @@ class Storage:
             pd.DataFrame: Generic dataframe
         """
         return self._cache_data[col.value]
+
+    def add_to_collection(self, col: StorageCollection, data: Definition):
+        """
+        Add data to the storage system
+
+        Args:
+            col (StorageCollection): Storage collection
+            data (Definition): Data to add
+        """
+        instance_dict = asdict(data)
+        new_row = pd.DataFrame([instance_dict])
+        self._cache_data[col.value] = pd.concat(
+            [self._cache_data[col.value], new_row], ignore_index=True
+        )
+        self.save(col)
 
     def _get_dataclass_type(self, col: StorageCollection) -> type:
         """
