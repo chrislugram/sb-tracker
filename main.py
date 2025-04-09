@@ -5,6 +5,7 @@ This file contains the main function for the app
 import streamlit as st
 
 from components.components_project import tab_projects
+from components.components_project_status import tab_project_status
 from config.app_config import AppConfig
 from logger import get_logger
 from storage.storage import Storage
@@ -23,11 +24,14 @@ storage.load_all()
 
 st.title("SB Tracker")
 
-tabs = st.tabs(["Projects"])
+tabs = st.tabs(["Projects", "Project status"])
 
 # Project
 with tabs[0]:
     tab_projects(storage)
+
+with tabs[1]:
+    tab_project_status(storage, app_config)
 
 # df_projects = pd.DataFrame(columns=["id", "name", "created_at", "description"])
 # df_timetracks = pd.DataFrame(
