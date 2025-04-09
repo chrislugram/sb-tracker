@@ -28,14 +28,14 @@ def tab_project_tasks(
     """
     st.markdown("---")
 
-    add_task(storage, selected_project)
+    add_task(storage, selected_project, app_config)
 
     st.markdown("---")
 
     show_project_track(storage, selected_project)
 
 
-def add_task(storage: Storage, project: Project):
+def add_task(storage: Storage, project: Project, app_config: AppConfig):
     """
     Add task to the project's timetrack
 
@@ -45,10 +45,15 @@ def add_task(storage: Storage, project: Project):
     """
     st.subheader("Add task")
 
+    expense_types = [
+        s.strip() for s in app_config.get("APPCONFIG", "expenses_types").split(",")
+    ]
+
     with st.form("form_task"):
         name = st.text_input("Task", max_chars=100)
         description = st.text_input("Description", max_chars=1000)
         duration = st.number_input("Duration", min_value=0)
+        type = st.selectbox("Task type", options=expense_types)
         submitted = st.form_submit_button("Add task")
 
         if submitted:
@@ -62,6 +67,7 @@ def add_task(storage: Storage, project: Project):
                     name=name,
                     description=description,
                     duration=duration,
+                    type=type,
                     created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 )
 
