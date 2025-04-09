@@ -1,5 +1,6 @@
 import shutil
 import unittest
+from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -52,7 +53,7 @@ class TestStorage(unittest.TestCase):
 
     def test_load(self):
         for col in StorageCollection:
-            self.storage._cache_data[col.value] = None
+            self.storage._cache_data = {}
 
             self.storage.load(col)
             self.assertIsNotNone(self.storage._cache_data[col.value])
@@ -82,7 +83,12 @@ class TestStorage(unittest.TestCase):
         self.storage.load(StorageCollection.projects)
 
         # When adding an item to the collection
-        project = Project(id="1", name="Project 1", description="Description 1")
+        project = Project(
+            id="1",
+            name="Project 1",
+            description="Description 1",
+            created_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        )
         self.storage.add_to_collection(StorageCollection.projects, project)
 
         # Then
