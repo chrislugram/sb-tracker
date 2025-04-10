@@ -26,7 +26,9 @@ def tab_project_report(
         # Prepare dataframes
         invoices_df = storage.get(StorageCollection.invoices)
         invoices = invoices_df[invoices_df["project"] == selected_project.id].copy()
-        invoices["amount"] = invoices["price"] * invoices["sales"]
+        invoices["amount"] = (invoices["price"] * invoices["sales"]) * (
+            1 - (invoices["commission"] / 100)
+        )
 
         expenses_df = storage.get(StorageCollection.expenses)
         expenses = expenses_df[expenses_df["project"] == selected_project.id].copy()
@@ -45,8 +47,34 @@ def tab_project_report(
         # Monthly trend
         show_monthly_trend(invoices, all_expenses)
 
+        col1, col2 = st.columns(2)
+
         # Platform chart
-        show_platform_chart(invoices)
+        with col1:
+            show_platform_chart(invoices)
+
+        # Expenses by category
+        with col2:
+            show_expense_category(all_expenses)
+
+
+def show_expense_category(expenses: pd.DataFrame):
+    """
+    Show barplot based in category expense
+
+    Args:
+        expenses (pd.DataFrame): expenses of the project
+    """
+    if "type" in expenses.columns:
+        st.subheader("Expenses by Category")
+        category_chart = expenses.groupby("type")["amount"].sum().reset_index()
+        fig2 = px.pie(
+            category_chart,
+            names="type",
+            values="amount",
+            title="Expenses by Category",
+        )
+        st.plotly_chart(fig2, use_container_width=True)
 
 
 def show_platform_chart(invoices: pd.DataFrame):
@@ -68,20 +96,20 @@ def show_platform_chart(invoices: pd.DataFrame):
         st.plotly_chart(fig, use_container_width=True)
 
 
-def show_expense_category(expenses: pd.DataFrame):
-    """
-    Show barplot based in category expense
+# def show_expense_category(expenses: pd.DataFrame):
+#     """
+#     Show barplot based in category expense
 
-    Args:
-        expenses (pd.DataFrame): expenses of the project
-    """
-    if "category" in expenses.columns:
-        st.subheader("Expenses by Category")
-        category_chart = expenses.groupby("category")["amount"].sum().reset_index()
-        fig2 = px.bar(
-            category_chart, x="category", y="amount", title="Expenses by Category"
-        )
-        st.plotly_chart(fig2, use_container_width=True)
+#     Args:
+#         expenses (pd.DataFrame): expenses of the project
+#     """
+#     if "type" in expenses.columns:
+#         st.subheader("Expenses by Category")
+#         category_chart = expenses.groupby("type")["amount"].sum().reset_index()
+#         fig2 = px.bar(
+#             category_chart, x="type", y="amount", title="Expenses by Category"
+#         )
+#         st.plotly_chart(fig2, use_container_width=True)
 
 
 def show_monthly_trend(invoices: pd.DataFrame, expenses: pd.DataFrame):
@@ -143,7 +171,7 @@ def unify_expenses(
 
     Args:
         expenses (pd.DataFrame): Expenses of the project
-        timetra (pd.DataFrame): Time expend in tasks of the project
+        timetrack (pd.DataFrame): Time expend in tasks of the project
         app_config (AppConfig): App config
     """
 
