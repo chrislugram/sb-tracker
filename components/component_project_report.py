@@ -187,6 +187,5 @@ def unify_expenses(
     )
 
     unified_df = pd.concat([expenses, timetrack_variation], ignore_index=True)
-    print(f"unified_df.columns {unified_df.columns}")
     unified_df = unified_df[["type", "detail", "amount", "created_at"]].copy()
     return unified_df

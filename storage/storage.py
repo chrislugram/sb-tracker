@@ -92,10 +92,8 @@ class Storage:
         """
         Save the data to the storage system
         """
-        log.info(self._cache_data.keys())
         if col.value in self._cache_data.keys():
             file_col = self._base_path / self.config.get(col.value, "path")
-            log.info(f"Saving {file_col}")
             self._cache_data[col.value].to_parquet(file_col)
 
     def set(self, col: StorageCollection, data: pd.DataFrame):
@@ -135,6 +133,27 @@ class Storage:
             [self._cache_data[col.value], new_row], ignore_index=True
         )
         self.save(col)
+
+    def delete_projects(self, deleted_rows: pd.DataFrame):
+        """
+        Delete projects from the storage system
+
+        Args:
+            deleted_rows (pd.DataFrame): Projects to delete
+        """
+        print(f"Deleted rows {deleted_rows}")
+        for col in (
+            StorageCollection.expenses,
+            StorageCollection.invoices,
+            StorageCollection.timetrack,
+        ):
+            for id, deleted_row in deleted_rows.iterrows():
+                print(f"Deleting {id}, {deleted_row}")
+                self._cache_data[col.value] = self._cache_data[col.value][
+                    self._cache_data[col.value]["project"] != id
+                ]
+
+            self.save(col)
 
     def _get_dataclass_type(self, col: StorageCollection) -> type:
         """

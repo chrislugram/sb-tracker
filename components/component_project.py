@@ -37,9 +37,21 @@ def project_list(storage: Storage):
     df = storage.get(StorageCollection.projects)
 
     if not df.empty:
+        df = df.set_index("id")
         edited_df = st.data_editor(df, num_rows="dynamic")
         if edited_df is not None:
-            storage.set(StorageCollection.projects, edited_df)
+            # Detected if a row was deleted
+            if len(edited_df) < len(df):
+                deleted_ids = df.index.difference(edited_df.index)
+                deleted_rows = df.loc[deleted_ids]
+                print("Deleted rows")
+                print(deleted_rows.head())
+                storage.delete_projects(deleted_rows)
+
+            # Save edited dataframe if index changed
+            if not df.index.equals(edited_df.index):
+                print(f"Saving edited dataframe {edited_df.columns}")
+                storage.set(StorageCollection.projects, edited_df)
     else:
         st.info("No projects found")
 
