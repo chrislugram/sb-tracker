@@ -134,27 +134,6 @@ class Storage:
         )
         self.save(col)
 
-    def delete_projects(self, deleted_rows: pd.DataFrame):
-        """
-        Delete projects from the storage system
-
-        Args:
-            deleted_rows (pd.DataFrame): Projects to delete
-        """
-        print(f"Deleted rows {deleted_rows}")
-        for col in (
-            StorageCollection.expenses,
-            StorageCollection.invoices,
-            StorageCollection.timetrack,
-        ):
-            for id, deleted_row in deleted_rows.iterrows():
-                print(f"Deleting {id}, {deleted_row}")
-                self._cache_data[col.value] = self._cache_data[col.value][
-                    self._cache_data[col.value]["project"] != id
-                ]
-
-            self.save(col)
-
     def _get_dataclass_type(self, col: StorageCollection) -> type:
         """
         Get the dataclass type from the storage collection
