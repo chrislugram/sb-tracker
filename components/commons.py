@@ -37,9 +37,6 @@ def select_project(storage: Storage, key: str) -> Project:
     # Get project
     row = project_df[project_df["name"] == project_selector].iloc[0]
     if row is not None:
-        log.info(f"Selected project {row}")
-        log.info(row.to_dict())
-        log.info(project_df.columns)
         return Project(**row.to_dict())
     else:
         return None
